@@ -50,7 +50,7 @@ def call(Map pipelineParams){
         }
 
         environment {
-            APPLICATION_NAME = ${pipelineParams.appName}
+            APPLICATION_NAME = "${pipelineParams.appName}"
             SONAR_TOKEN =  credentials('sonar-creds2')
             SONAR_URL = "http://34.60.91.201:9000"
             // if any errors with readMavenPom, make sure pipeline-utility-steps plugin is install in your jenkins, if not do install
