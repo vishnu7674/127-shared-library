@@ -1,7 +1,7 @@
 package com.i27academy.builds
 
 
-class Calculator {
+class Docker {
     def jenkins
     Docker(jenkins) {
         this.jenkins = jenkins
@@ -18,9 +18,3 @@ class Calculator {
 }
 
 
-def buildApp() {
-    return {
-        echo "Building the ${env.APPLICATION_NAME} Application"
-        sh 'mvn clean package -DSkipTests=true'
-    }
-}
