@@ -217,12 +217,12 @@ def call(Map pipelineParams){
 
 //method for maven build
 
-// def buildApp() {
-//     return {
-//         echo "Building the ${env.APPLICATION_NAME} Application"
-//         sh 'mvn clean package -DSkipTests=true'
-//     }
-// }
+def buildApp() {
+    return {
+        echo "Building the ${env.APPLICATION_NAME} Application"
+        sh 'mvn clean package -DSkipTests=true'
+    }
+}
 
 //method for docker build and push
 def dockerbuildAndpush() {
