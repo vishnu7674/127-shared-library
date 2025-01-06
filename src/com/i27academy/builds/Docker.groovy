@@ -12,7 +12,7 @@ class Docker {
     def buildApp(appName) {
         jenkins.sh """
             echo "Building the $appName Application"
-            'mvn clean package -DSkipTests=true'
+            mvn clean package -DSkipTests=true
         """
     }
 }
