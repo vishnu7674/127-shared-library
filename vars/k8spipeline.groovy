@@ -157,10 +157,11 @@ def call(Map pipelineParams){
                 }
                 steps {
                     script {
+                        def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
                         //dockerDeploy('dev', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_DEV_FILE}")
+                        k8s.k8sdeploy("${env.k8s_DEV_FILE}", docker_image)
                         echo "Deployed to dev successfully"
                     }
                 }
@@ -173,10 +174,11 @@ def call(Map pipelineParams){
                 }
                 steps {
                     script {
+                        def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
                         //dockerDeploy('Test', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_TST_FILE}")
+                        k8s.k8sdeploy("${env.k8s_TST_FILE}", docker_image)
                     }
                 }
             }
@@ -202,10 +204,11 @@ def call(Map pipelineParams){
                 }
                 steps {
                 script {
+                        def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
                        // dockerDeploy('stage', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                       k8s.k8sdeploy("${env.k8s_STG_FILE}")
+                       k8s.k8sdeploy("${env.k8s_STG_FILE}", docker_image)
                     }
                 }
             }
@@ -229,9 +232,10 @@ def call(Map pipelineParams){
                         input message: "Deploying to ${env.APPLICATION_NAME} to production ??", ok: 'yes', submitter: 'vishnudev'
                     }
                 script {
+                        def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
                         //envDeploy, hostPort, contPort
                         //dockerDeploy('prod', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_PROD_FILE}")
+                        k8s.k8sdeploy("${env.k8s_PROD_FILE}", docker_image)
                     }
                 }
             }

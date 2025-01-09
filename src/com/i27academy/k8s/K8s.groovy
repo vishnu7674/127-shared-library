@@ -21,12 +21,13 @@ class K8s {
     }
 
     //Method todeploy the application
-    def k8sdeploy(fileName) {
+    def k8sdeploy(fileName, docker_image) {
         jenkins.sh """
         echo "******************************** Entering into Kuberneted Deployment Method **************************"
         echo "************* Listing the files in workspace************************"
+        sed -i "s|DIT|${docker_image}|g" ./.cicd/${fileName}
         kubectl apply -f ./.cicd/${fileName}
-        
+
         """
     }
 }
