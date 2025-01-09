@@ -1,5 +1,6 @@
 import com.i27academy.builds.Calculator
 import com.i27academy.builds.Docker
+import com.i27academy.k8s.k8s
 
 def call(Map pipelineParams){
     // An instance of the class called calculator is created
@@ -67,6 +68,12 @@ def call(Map pipelineParams){
 
         }
         stages {
+            stage ('Authentication'){
+                steps {
+                    echo "Executing in GCP project"
+                    k8s.auth_login()
+                }
+            }
             stage ('Build') {
                 when {
                     anyOf {
@@ -263,28 +270,28 @@ def imageValidation() {
 
 
 // method for deploy containers in different env
-def dockerDeploy(envDeploy, hostPort, contPort) {
-    return {
-        echo "Deploying to dev $envDeploy environment"
-            withCredentials([usernamePassword(credentialsId: 'maha_ssh_docker_server_creds', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+// def dockerDeploy(envDeploy, hostPort, contPort) {
+//     return {
+//         echo "Deploying to dev $envDeploy environment"
+//             withCredentials([usernamePassword(credentialsId: 'maha_ssh_docker_server_creds', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
 
-                    script {
-                        sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip \"docker pull ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \""
-                        try {
-                            // stop the container
-                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker stop ${env.APPLICATION_NAME}-$envDeploy"
-                            // remove the continer
-                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker rm ${env.APPLICATION_NAME}-$envDeploy"
-                        }
-                        catch(err) {
-                            echo "Error caught: $err"
-                        }
-                        // create the container
-                        sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker run -dit --name ${env.APPLICATION_NAME}-$envDeploy -p $hostPort:$contPort ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}" 
-                    }
-                }
-    }
-}
+//                     script {
+//                         sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip \"docker pull ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \""
+//                         try {
+//                             // stop the container
+//                             sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker stop ${env.APPLICATION_NAME}-$envDeploy"
+//                             // remove the continer
+//                             sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker rm ${env.APPLICATION_NAME}-$envDeploy"
+//                         }
+//                         catch(err) {
+//                             echo "Error caught: $err"
+//                         }
+//                         // create the container
+//                         sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker run -dit --name ${env.APPLICATION_NAME}-$envDeploy -p $hostPort:$contPort ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}" 
+//                     }
+//                 }
+//     }
+// }
 // create a container
                 // docker container create imagename
                 // docker run -dit --name containername imageName

@@ -1,0 +1,99 @@
+{
+	"info": {
+		"_postman_id": "5735db2e-a766-443b-8898-03520a13b769",
+		"name": "learner-user-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9156212"
+	},
+	"item": [
+		{
+			"name": "create-uesers",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\":\"siva\",\r\n    \"lastName\":\"Gupta\",\r\n    \"email\":\"siva@xyaaz.com\",\r\n    \"password\":\"123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8232/api/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8232",
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-user-details",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8232/api/users?email=siva15@utlook.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8232",
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "siva15@utlook.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8232/api/users/getUserById?userId=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8232",
+					"path": [
+						"api",
+						"users",
+						"getUserById"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
