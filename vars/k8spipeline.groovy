@@ -74,7 +74,7 @@ def call(Map pipelineParams){
                 steps {
                     echo "Executing in GCP project"
                     script {
-                        K8s.auth_login()
+                        k8s.auth_login()
                     }
                     
                 }
