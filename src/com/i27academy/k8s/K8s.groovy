@@ -15,6 +15,8 @@ class K8s {
         jenkins.sh """
         echo  "************************ Entering into kubernetes Authentication/Login Password ************************"
         gcloud compute instances list
+        echo "************************ Get the k8s Node ************************"
+        gcloud container clusters get-credentials i27-cluster --zone us-central1-c --project newone-445014
         """
     }
 }
