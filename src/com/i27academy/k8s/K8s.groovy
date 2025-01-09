@@ -19,6 +19,16 @@ class K8s {
         gcloud container clusters get-credentials i27-cluster --zone us-central1-c --project newone-445014
         """
     }
+
+    //Method todeploy the application
+    def k8sdeploy(fileName) {
+        jenkins.sh """
+        echo "******************************** Entering into Kuberneted Deployment Method **************************"
+        echo "************* Listing the files in workspace************************"
+        kubectl apply -f ./.cicd/${fileName}
+        
+        """
+    }
 }
 
 

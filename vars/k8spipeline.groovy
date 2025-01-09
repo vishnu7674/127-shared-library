@@ -67,6 +67,11 @@ def call(Map pipelineParams){
             POM_PACKAGING = readMavenPom().getPackaging()
             DOCKER_HUB = "docker.io/vishnu7674"
             DOCKERHUB_CREDS = credentials('dockerhub_creds')
+            k8s_DEV_FILE = "k8s_dev.yaml"
+            k8s_TST_FILE = "k8s_tst.yaml"
+            k8s_STG_FILE = "k8s_stage.yaml"
+            k8s_PROD_FILE = "k8s_prod.yaml"
+
 
         }
         stages {
@@ -154,7 +159,9 @@ def call(Map pipelineParams){
                     script {
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
-                        dockerDeploy('dev', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
+                        //dockerDeploy('dev', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
+                        k8s.k8sdeploy("${env.k8s_DEV_FILE}")
+                        echo "Deployed to dev successfully"
                     }
                 }
             }
@@ -168,7 +175,8 @@ def call(Map pipelineParams){
                     script {
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
-                        dockerDeploy('Test', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
+                        //dockerDeploy('Test', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
+                        k8s.k8sdeploy("${env.k8s_TST_FILE}")
                     }
                 }
             }
@@ -196,7 +204,8 @@ def call(Map pipelineParams){
                 script {
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
-                        dockerDeploy('stage', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
+                       // dockerDeploy('stage', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
+                       k8s.k8sdeploy("${env.k8s_STG_FILE}")
                     }
                 }
             }
@@ -221,8 +230,8 @@ def call(Map pipelineParams){
                     }
                 script {
                         //envDeploy, hostPort, contPort
-                        dockerDeploy('prod', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                    
+                        //dockerDeploy('prod', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
+                        k8s.k8sdeploy("${env.k8s_PROD_FILE}")
                     }
                 }
             }
