@@ -1,12 +1,14 @@
 import com.i27academy.builds.Calculator
 import com.i27academy.builds.Docker
-import com.i27academy.K8s.K8s
+import com.i27academy.k8s.K8s 
+
 
 def call(Map pipelineParams){
     // An instance of the class called calculator is created
     Calculator calculator = new Calculator(this)
     Docker docker = new Docker(this)  
     K8s k8s = new K8s(this)
+    
 
 // this Jenkins pipeline is for Eureka deployment
 
