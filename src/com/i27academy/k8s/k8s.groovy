@@ -1,11 +1,12 @@
 package com.i27academy.k8s
 
 // all the methods 
-class k8s {
+class K8s {
     def jenkins
     K8s(jenkins) {
         this.jenkins = jenkins
     }
+
 
     // Application Build
 
