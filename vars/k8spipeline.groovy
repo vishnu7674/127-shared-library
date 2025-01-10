@@ -71,6 +71,10 @@ def call(Map pipelineParams){
             k8s_TST_FILE = "k8s_tst.yaml"
             k8s_STG_FILE = "k8s_stage.yaml"
             k8s_PROD_FILE = "k8s_prod.yaml"
+            DEV_NAMESPACE = "cart-dev-ns"
+            TST_NAMESPACE = "cart-tst-ns"
+            STG_NAMESPACE = "cart-stg-ns"
+            PROD_NAMESPACE = "cart-prod-ns"
 
 
         }
@@ -161,7 +165,7 @@ def call(Map pipelineParams){
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
                         //dockerDeploy('dev', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_DEV_FILE}", docker_image)
+                        k8s.k8sdeploy("${env.k8s_DEV_FILE}", docker_image, "${env.DEV_NAMESPACE}")
                         echo "Deployed to dev successfully"
                     }
                 }
@@ -178,7 +182,7 @@ def call(Map pipelineParams){
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
                         //dockerDeploy('Test', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_TST_FILE}", docker_image)
+                        k8s.k8sdeploy("${env.k8s_TST_FILE}", docker_image, "${env.TST_NAMESPACE}")
                     }
                 }
             }
@@ -208,7 +212,7 @@ def call(Map pipelineParams){
                         //envDeploy, hostPort, contPort
                         imageValidation().call()
                        // dockerDeploy('stage', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                       k8s.k8sdeploy("${env.k8s_STG_FILE}", docker_image)
+                       k8s.k8sdeploy("${env.k8s_STG_FILE}", docker_image, "${env.STG_NAMESPACE}")
                     }
                 }
             }
@@ -235,7 +239,7 @@ def call(Map pipelineParams){
                         def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
                         //envDeploy, hostPort, contPort
                         //dockerDeploy('prod', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_PROD_FILE}", docker_image)
+                        k8s.k8sdeploy("${env.k8s_PROD_FILE}", docker_image, "${env.PROD_NAMESPACE}")
                     }
                 }
             }
