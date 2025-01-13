@@ -65,8 +65,8 @@ def call(Map pipelineParams){
             // if any errors with readMavenPom, make sure pipeline-utility-steps plugin is install in your jenkins, if not do install
             POM_VERSION = readMavenPom().getVersion()
             POM_PACKAGING = readMavenPom().getPackaging()
-            DOCKER_HUB = "docker.io/vishnu7674"
-            DOCKERHUB_CREDS = credentials('dockerhub_creds')
+            //DOCKER_HUB = "docker.io/vishnu7674"
+            //DOCKERHUB_CREDS = credentials('dockerhub_creds')
             k8s_DEV_FILE = "k8s_dev.yaml"
             k8s_TST_FILE = "k8s_tst.yaml"
             k8s_STG_FILE = "k8s_stage.yaml"
