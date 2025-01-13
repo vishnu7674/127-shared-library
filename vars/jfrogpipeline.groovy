@@ -138,23 +138,19 @@ def call(Map pipelineParams){
                     }
                 }
             }
-            stage ('Docker build and push') {
+            stage ('Docker Build and Push') {
                 when {
                     anyOf {
                         expression {
-                            params.dockerpush == 'yes'
+                            params.dockerPush == 'yes'
                         }
                     }
                 }
-                steps {
-                    // existing artifact format: i27-eureka-0.0.1-SNAPSHOT.jar
-                    // My Destination artificat format: i27-eureka-buildnumber-branchname.jar
-                    //echo "My JAR Source: i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}"
-                    //echo "MY JAR Destination: i27-${env.APPLICATION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.${env.POM_PACKAGING}"
+                steps { 
                     script {
-                        dockerbuildAndpush().call()
+                        dockerBuildAndPush().call()
                     }
-                }
+                } 
             }
             stage ('Deploy to Dev') {
                 when {
