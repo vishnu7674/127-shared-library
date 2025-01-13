@@ -6,10 +6,9 @@ def call(Map pipelineParams){
     // An instance of the class called calculator is created
     Calculator calculator = new Calculator(this)
     Docker docker = new Docker(this)   
-    K8s k8s = new K8s(this) 
-    
+    K8s k8s = new K8s(this)
 
-// this Jenkins pipeline is for Eureka deployment
+// This Jenkinsfile is for Eureka Deployment 
 
     pipeline {
         agent {
@@ -18,40 +17,37 @@ def call(Map pipelineParams){
         parameters {
             choice(name: 'scanOnly',
                 choices: 'no\nyes',
-                description: 'This will ScanOnly your application'
+                description: 'This will scan your application'
             )
             choice(name: 'buildOnly',
                 choices: 'no\nyes',
-                description: 'This will build your application'
+                description: 'This will Only Build your application'
             )
-            choice(name: 'dockerpush',
+            choice(name: 'dockerPush',
                 choices: 'no\nyes',
-                description: 'his will build docker image and push'
+                description: 'This Will build dockerImage and Push'
             )
             choice(name: 'deployToDev',
                 choices: 'no\nyes',
-                description: 'This will Deploy your app to Dev env'
+                description: 'This will Deploy the app to Dev env'
             )
             choice(name: 'deployToTest',
                 choices: 'no\nyes',
-                description: 'This will Deploy your app to Test env'
+                description: 'This will Deploy the app to Test env'
             )
-            choice(name: 'deployTostage',
+            choice(name: 'deployToStage',
                 choices: 'no\nyes',
-                description: 'This will Deploy your app to stage env'
+                description: 'This will Deploy the app to Stage env'
             )
-            choice(name: 'deployToprod',
+            choice(name: 'deployToProd',
                 choices: 'no\nyes',
-                description: 'This will Deploy your app to stage prod'
+                description: 'This will Deploy the app to Prod env'
             )
         }
-    
-
         tools {
             maven 'Maven-3.8.8'
             jdk 'JDK-17'
         }
-
         environment {
             APPLICATION_NAME = "${pipelineParams.appName}"
             // DEV_HOST_PORT = "${pipelineParams.devHostPort}"
@@ -79,7 +75,6 @@ def call(Map pipelineParams){
             JFROG_DOCKER_REPO_NAME = "cont-images-docker-docker"
             JFROG_CREDS = credentials('JFROG_CREDS')
 
-
         }
         stages {
             stage ('Authentication'){
@@ -88,26 +83,24 @@ def call(Map pipelineParams){
                     script {
                         k8s.auth_login()
                     }
-                    
                 }
             }
             stage ('Build') {
                 when {
                     anyOf {
                         expression {
-                            params.dockerpush == 'yes'
+                            params.dockerPush == 'yes'
                             params.buildOnly == 'yes'
                         }
                     }
                 }
                 steps {
-                    script{
-                        docker.buildApp("${env.APPLICATION_NAME}") //appname
+                    script {
+                        docker.buildApp("${env.APPLICATION_NAME}") //appName
                     }
-                    
                 }
             }
-            stage ('sonar') {
+            stage ('Sonar') {
                 when {
                     expression {
                         params.scanOnly == 'yes'
@@ -116,26 +109,24 @@ def call(Map pipelineParams){
                     //     expression {
                     //         params.scanOnly == 'yes'
                     //         params.buildOnly == 'yes'
-                    //         params.dockerpush == 'yes'
+                    //         params.dockerPush == 'yes'
                     //     }
                     // }
                 }
                 steps {
-                    script {
-                        echo "Starting sonar scan"
-                        withSonarQubeEnv('SonarQube'){  //the name we saved in system under manage jenkins
-                            sh """
-                            mvn clean verify sonar:sonar \
-                                -Dsonar.projectKey=i27-eureka \
-                                -Dsonar.host.url=${env.SONAR_URL} \
-                                -Dsonar.login=${SONAR_TOKEN}
+                    echo "Starting Sonar Scans"
+                    withSonarQubeEnv('SonarQube'){ // The name u saved in system under manage jenkins
+                        sh """
+                        mvn  sonar:sonar \
+                            -Dsonar.projectKey=i27-eureka \
+                            -Dsonar.host.url=${env.SONAR_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
                     timeout (time: 2, unit: 'MINUTES'){
                         waitForQualityGate abortPipeline: true
                     }
 
-                    }
                 }
             }
             stage ('Docker Build and Push') {
@@ -160,12 +151,13 @@ def call(Map pipelineParams){
                 }
                 steps {
                     script {
-                        def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
-                        //envDeploy, hostPort, contPort
+                        def docker_image = "${env.JFROG_DOCKER_REGISTRY}/${env.JFROG_DOCKER_REPO_NAME}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
+                        //def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
+                        //envDeploy, hostPort, contPort)
                         imageValidation().call()
                         //dockerDeploy('dev', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_DEV_FILE}", docker_image, "${env.DEV_NAMESPACE}")
-                        echo "Deployed to dev successfully"
+                        k8s.k8sdeploy("${env.K8S_DEV_FILE}", docker_image, "${env.DEV_NAMESPACE}") 
+                        echo "Deployed to Dev Successfully"
                     }
                 }
             }
@@ -177,93 +169,84 @@ def call(Map pipelineParams){
                 }
                 steps {
                     script {
+                        //envDeploy, hostPort, contPort)
                         def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
-                        //envDeploy, hostPort, contPort
                         imageValidation().call()
-                        //dockerDeploy('Test', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_TST_FILE}", docker_image, "${env.TST_NAMESPACE}")
+                        k8s.k8sdeploy("${env.K8S_TST_FILE}", docker_image, "${env.TST_NAMESPACE}")
+                        echo "Deployed to Test Successfully"
                     }
                 }
             }
             stage ('Deploy to Stage') {
-                // when {
-                //     expression {
-                //         params.deployTostage == 'yes'
-                //     }
-                // }
-                when {
-                    allOf {
-                        anyOf {
-                            expression{
-                                params.deployTostage == 'yes'
-                            }
-                            
-                        }
-                        anyOf {
-                            branch 'release/*'
-                            
-                        }
-                    }
-                }
-                steps {
-                script {
-                        def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
-                        //envDeploy, hostPort, contPort
-                        imageValidation().call()
-                       // dockerDeploy('stage', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                       k8s.k8sdeploy("${env.k8s_STG_FILE}", docker_image, "${env.STG_NAMESPACE}")
-                    }
-                }
-            }
-            stage ('Deploy to prod') {
                 when {
                     allOf {
                         anyOf {
                             expression {
-                                params.deployToprod == 'yes'
+                                params.deployToStage == 'yes'
+                                // other condition
                             }
                         }
-                        anyOf {
-                            tag pattern: "v\\d{1,2}\\.\\d{1,2}\\.\\d{1,2}",  comparator: "REGEXP" //v1.2.3
-
+                        anyOf{
+                            branch 'release/*'
                         }
                     }
-                    
+                }
+                steps {
+                    script {
+                        //envDeploy, hostPort, contPort)
+                        def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
+                        imageValidation().call()
+                        k8s.k8sdeploy("${env.K8S_STG_FILE}", docker_image, "${env.STG_NAMESPACE}")
+                        echo "Deployed to Stage Successfully"
+                    }
+
+                }
+            }
+            stage ('Deploy to Prod') {
+                when {
+                    allOf {
+                        anyOf{
+                            expression {
+                                params.deployToProd == 'yes'
+                            }
+                        }
+                        anyOf{
+                            tag pattern: "v\\d{1,2}\\.\\d{1,2}\\.\\d{1,2}",  comparator: "REGEXP" //v1.2.3
+                        }
+                    }
                 }
                 steps {
                     timeout(time: 300, unit: 'SECONDS' ) { // SECONDS, MINUTES,HOURS{
-                        input message: "Deploying to ${env.APPLICATION_NAME} to production ??", ok: 'yes', submitter: 'vishnudev'
+                        input message: "Deploying to ${env.APPLICATION_NAME} to production ??", ok: 'yes', submitter: 'hemasre'
                     }
-                script {
+                    script {
+                        //envDeploy, hostPort, contPort)
                         def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
-                        //envDeploy, hostPort, contPort
-                        //dockerDeploy('prod', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.k8s_PROD_FILE}", docker_image, "${env.PROD_NAMESPACE}")
+                        k8s.k8sdeploy("${env.K8S_PRD_FILE}", docker_image, "${env.PROD_NAMESPACE}")
+                        echo "Deployed to Prod Successfully"
                     }
                 }
             }
         }
     }
 }
-    
 
-//method for maven build
-
+// Method for Maven Build
 def buildApp() {
     return {
         echo "Building the ${env.APPLICATION_NAME} Application"
-        sh 'mvn clean package -DSkipTests=true'
+        sh 'mvn clean package -DskipTests=true'
     }
 }
 
-//method for docker build and push
+// Method for Docker build and Push
 def dockerBuildAndPush(){
     return {
         echo "************************* Building Docker image*************************"
         sh "cp ${WORKSPACE}/target/i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ./.cicd"
         sh "docker build --no-cache --build-arg JAR_SOURCE=i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} -t ${env.JFROG_DOCKER_REGISTRY}/${env.JFROG_DOCKER_REPO_NAME}/${env.APPLICATION_NAME}:${GIT_COMMIT} ./.cicd"
         echo "************************ Login to Docker Registry ************************"
-        sh "docker login -u ${JFROG_CREDS_USR} -p ${JFROG_CREDS_PSW} i27devops.jfrog.io"
+        sh "docker login -u ${JFROG_CREDS_USR} -p ${JFROG_CREDS_PSW} i27devopsb4.jfrog.io"
         sh "docker push ${env.JFROG_DOCKER_REGISTRY}/${env.JFROG_DOCKER_REPO_NAME}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
     }
 }
@@ -284,36 +267,35 @@ def imageValidation() {
 }
 
 
-
-
-// method for deploy containers in different env
-// def dockerDeploy(envDeploy, hostPort, contPort) {
+// Method for deploying containers in diff env
+// def dockerDeploy(envDeploy, hostPort, contPort){
 //     return {
-//         echo "Deploying to dev $envDeploy environment"
+//         echo "Deploying to $envDeploy Environmnet"
 //             withCredentials([usernamePassword(credentialsId: 'maha_ssh_docker_server_creds', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-
-//                     script {
-//                         sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip \"docker pull ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \""
-//                         try {
-//                             // stop the container
-//                             sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker stop ${env.APPLICATION_NAME}-$envDeploy"
-//                             // remove the continer
-//                             sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker rm ${env.APPLICATION_NAME}-$envDeploy"
-//                         }
-//                         catch(err) {
-//                             echo "Error caught: $err"
-//                         }
-//                         // create the container
-//                         sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker run -dit --name ${env.APPLICATION_NAME}-$envDeploy -p $hostPort:$contPort ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}" 
+//                 script {
+//                     sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip \"docker pull ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}\""
+//                     try {
+//                         // Stop the Container
+//                         sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker stop ${env.APPLICATION_NAME}-$envDeploy"
+//                         // Remove the Container
+//                         sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker rm ${env.APPLICATION_NAME}-$envDeploy"
 //                     }
-//                 }
+//                     catch(err) {
+//                         echo "Error Caught: $err"
+//                     }
+
+//                     // Create the container
+//                     sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no $USERNAME@$dev_ip docker run -dit --name ${env.APPLICATION_NAME}-$envDeploy -p $hostPort:$contPort ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
+//                 }   
+//             }
 //     }
 // }
-// create a container
-                // docker container create imagename
-                // docker run -dit --name containername imageName
-                // docker run -dit --name eureka-dev
-               // docker run -dit --name ${env.APPLICATION_NAME}-dev -p 5761:8761 ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} 
-               // run -dit --name ${env.APPLICATION_NAME}-dev -p 5761:8761
-//sshpass -p password ssh -o StrictHostKeyChecking=no username@dockerserverip
 
+
+
+
+
+
+
+
+  
