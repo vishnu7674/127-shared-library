@@ -153,10 +153,11 @@ def call(Map pipelineParams){
                     script {
                         def docker_image = "${env.JFROG_DOCKER_REGISTRY}/${env.JFROG_DOCKER_REPO_NAME}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
                         //def docker_image = "${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
-                        //envDeploy, hostPort, contPort)
+                        //(envDeploy, hostPort, contPort)
                         imageValidation().call()
                         //dockerDeploy('dev', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
-                        k8s.k8sdeploy("${env.K8S_DEV_FILE}", docker_image, "${env.DEV_NAMESPACE}") 
+                        //k8s.k8sdeploy("${env.K8S_DEV_FILE}", docker_image, "${env.DEV_NAMESPACE}") 
+                        k8s.k8sHelmChartDeploy()
                         echo "Deployed to Dev Successfully"
                     }
                 }
