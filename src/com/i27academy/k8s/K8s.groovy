@@ -33,7 +33,8 @@ class K8s {
     // Helm Deployments
     def k8sHelmChartDeploy(){
         jenkins.sh """
-        
+        echo "********************* Entering into Helm Deployment Method *********************"
+        helm version
         """
     }
     
