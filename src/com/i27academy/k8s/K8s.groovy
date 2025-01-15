@@ -37,14 +37,14 @@ class K8s {
         helm version
         # lets verify if chart exists
         echo "Verifying if the helm chart exists"
-        if helm list -n ${namespace} | grep -q "eureka-dev-chart"; then
-            echo "This chart exists"
-            echo "Upgrading the chart"
-            helm upgrade ${appName}-${env}-Chart -f ./.cicd/helm_values/values_${env}.yaml --set image.tag=${imageTag} ${helmChartPath} -n ${namespace}
-        else 
-            echo "Chart doesnot exists"
-            echo "Installing the chart"
-            helm install ${appName}-${env}-Chart -f ./.cicd/helm_values/values_${env}.yaml --set image.tag=${imageTag} ${helmChartPath} -n ${namespace}
+        // if helm list -n ${namespace} | grep -q "eureka-dev-chart"; then
+        //     echo "This chart exists"
+        //     echo "Upgrading the chart"
+        //     helm upgrade ${appName}-${env}-chart -f ./.cicd/helm_values/values_${env}.yaml --set image.tag=${imageTag} ${helmChartPath} -n ${namespace}
+        // else 
+        //     echo "Chart doesnot exists"
+        //     echo "Instlling the chart"
+            helm install ${appName}-${env}-chart -f ./.cicd/helm_values/values_${env}.yaml --set image.tag=${imageTag} ${helmChartPath} -n ${namespace}
         fi
         """
     }
