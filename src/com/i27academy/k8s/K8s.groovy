@@ -37,6 +37,7 @@ class K8s {
         helm version
         # lets verify if chart exists
         echo "Verifying if the helm chart exists"
+        pwd && ls -l ./.cicd/helm_values && ls -l /path/to/chart
         helm install ${appName}-${env}-chart -f ./.cicd/helm_values/values_${env}.yaml --set image.tag=${imageTag} ${helmChartPath} -n ${namespace}
         """
     }
