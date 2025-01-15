@@ -74,6 +74,11 @@ def call(Map pipelineParams){
             JFROG_DOCKER_REGISTRY = "i27devops.jfrog.io"
             JFROG_DOCKER_REPO_NAME = "cont-images-docker-docker"
             JFROG_CREDS = credentials('JFROG_CREDS')
+            HELM_PATH = "${workspace}/i27-shared-library/chart"
+            DEV_ENV = "dev"
+            TST_ENV = "tst"
+            STAGE_ENV = "stage"
+            PROD_ENV = "prod"
 
         }
         stages {
@@ -82,6 +87,13 @@ def call(Map pipelineParams){
                     echo "Executing in GCP project"
                     script {
                         k8s.auth_login()
+                    }
+                }
+            }
+            stage ('Checkout Shared Lib'){
+                steps {
+                    script {
+                        k8s.gitClone()
                     }
                 }
             }
@@ -157,7 +169,7 @@ def call(Map pipelineParams){
                         imageValidation().call()
                         //dockerDeploy('dev', "${env.HOST_PORT}", "${env.CONT_PORT}").call()
                         //k8s.k8sdeploy("${env.K8S_DEV_FILE}", docker_image, "${env.DEV_NAMESPACE}") 
-                        k8s.k8sHelmChartDeploy()
+                        k8s.k8sHelmChartDeploy("${env.APPLICATION_NAME}", "${env.DEV_ENV}", "${env.HELM_PATH}", "${GIT_COMMIT}", "${env.DEV_NAMESPACE}")
                         echo "Deployed to Dev Successfully"
                     }
                 }
@@ -226,6 +238,12 @@ def call(Map pipelineParams){
                         k8s.k8sdeploy("${env.K8S_PRD_FILE}", docker_image, "${env.PROD_NAMESPACE}")
                         echo "Deployed to Prod Successfully"
                     }
+                }
+            }
+            stage ('Clean') {
+                steps {
+                    echo "Cleaning the workspace"
+                    cleanWs()
                 }
             }
         }

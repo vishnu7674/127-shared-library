@@ -31,10 +31,31 @@ class K8s {
     }
 
     // Helm Deployments
-    def k8sHelmChartDeploy(){
+    def k8sHelmChartDeploy(appName, env, helmChartPath, imageTag, namespace) {
         jenkins.sh """
         echo "********************* Entering into Helm Deployment Method *********************"
         helm version
+        # lets verify if chart exists
+        echo "Verifying if the helm chart exists"
+        if helm list -n ${namespace} | grep -q "eureka-dev-chart"; then
+            echo "This chart exists"
+            echo "Upgrading the chart"
+            helm upgrade ${appName}-${env}-chart -f ./.cicd/helm_values/values_${env}.yaml --set image.tag=${imageTag} ${helmChartPath} -n ${namespace}
+        else 
+            echo "Chart doesnot exists"
+            echo "Installing the chart"
+            helm install ${appName}-${env}-chart -f ./.cicd/helm_values/values_${env}.yaml --set image.tag=${imageTag} ${helmChartPath} -n ${namespace}
+        fi
+        """
+    }
+
+    // git clone 
+    def gitClone() {
+        jenkins.sh """
+        echo "********************* Entering into Git Clone Method *********************"
+        git clone -b master https://github.com/vishnu7674/127-shared-library.git
+        echo "********************* Listing the files in the workspace *********************"
+        ls -la
         """
     }
     
