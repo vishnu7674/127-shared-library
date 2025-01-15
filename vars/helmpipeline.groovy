@@ -74,7 +74,7 @@ def call(Map pipelineParams){
             JFROG_DOCKER_REGISTRY = "i27devops.jfrog.io"
             JFROG_DOCKER_REPO_NAME = "cont-images-docker-docker"
             JFROG_CREDS = credentials('JFROG_CREDS')
-            HELM_PATH = "/home/vishnureddy7674/jenkins/workspace/i27-eureka_master/i27-shared-library/chart"
+            HELM_PATH = "${workspace}/127-shared-library/chart"
             DEV_ENV = "dev"
             TST_ENV = "tst"
             STAGE_ENV = "stage"
